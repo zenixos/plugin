@@ -1,7 +1,7 @@
 # Skill discovery - single source of truth for finding skills
 
 use ~/zenix_lib/md.nu
-use ./plugin-config.nu *
+use plugin-config.nu *
 
 # List all skills with metadata
 export def list [] {

@@ -1,8 +1,8 @@
 #!/usr/bin/env nu
 # description: Remove a plugin
 
-use ./lib/plugin-config.nu *
-use ./lib/plugin-discover.nu *
+use lib/plugin-config.nu *
+use lib/plugin-discover.nu *
 use ~/zenix_lib/style.nu
 
 # Remove a plugin

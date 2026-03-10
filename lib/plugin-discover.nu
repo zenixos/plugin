@@ -1,6 +1,6 @@
 # Plugin discovery functions
 
-use ./plugin-config.nu *
+use plugin-config.nu *
 
 # Get installed plugins from system/ and plugin/ directories
 export def get-installed [] {

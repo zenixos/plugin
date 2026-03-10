@@ -1,8 +1,8 @@
 #!/usr/bin/env nu
 # description: List installed and available plugins
 
-use ./lib/plugin-config.nu *
-use ./lib/plugin-discover.nu *
+use lib/plugin-config.nu *
+use lib/plugin-discover.nu *
 use ~/zenix_lib/style.nu
 
 # List installed and available plugins

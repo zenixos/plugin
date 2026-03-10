@@ -1,8 +1,8 @@
 #!/usr/bin/env nu
 # description: Sync skill modules and imports
 
-use ./lib/plugin-config.nu *
-use ./lib/skill-discover.nu
+use lib/plugin-config.nu *
+use lib/skill-discover.nu
 
 def list-commands [skill_dir: string] {
     glob $"($skill_dir)/*.nu"
