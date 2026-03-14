@@ -4,6 +4,7 @@
 use lib/plugin-config.nu *
 use lib/plugin-discover.nu *
 use ../lib/style.nu
+use ../lib/vcs.nu
 
 # Update plugins
 export def main [
@@ -27,23 +28,12 @@ export def main [
     
     for p in $to_update {
         print $"Updating ($p.name)..."
-        cd $p.dir
-        
-        # Fetch latest
-        let fetch = do { jj git fetch } | complete
-        if $fetch.exit_code != 0 {
-            print $"  (style warn 'Warning'): fetch failed"
-            continue
+        let result = (vcs update $p.dir)
+        if $result.success {
+            print $"  (style ok 'Updated')"
+        } else {
+            print $"  (style warn 'Warning'): ($result.error)"
         }
-        
-        # Rebase to main@origin
-        let rebase = do { jj rebase -d main@origin } | complete
-        if $rebase.exit_code != 0 {
-            print $"  (style warn 'Warning'): rebase failed, may have conflicts"
-            continue
-        }
-        
-        print $"  (style ok 'Updated')"
     }
     
     # Run sync
