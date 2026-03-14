@@ -3,7 +3,7 @@
 
 use lib/plugin-config.nu *
 use lib/plugin-discover.nu *
-use ~/zenix_lib/style.nu
+use ../lib/style.nu
 
 # List installed and available plugins
 export def main [] {
@@ -28,7 +28,7 @@ export def main [] {
     print ""
     print (style header "Available")
     let installed_names = ($installed | get name)
-    let exclude = ["zenix" "system"]  # Meta repos, not plugins
+    let exclude = ["zenix" "xenix" "system"]  # Meta repos, not plugins
     let not_installed = ($available 
         | where {|n| $n not-in $installed_names }
         | where {|n| $n not-in $exclude })

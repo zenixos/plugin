@@ -3,7 +3,7 @@
 
 use lib/plugin-config.nu *
 use lib/plugin-discover.nu *
-use ~/zenix_lib/style.nu
+use ../lib/style.nu
 
 # Install a plugin
 export def main [

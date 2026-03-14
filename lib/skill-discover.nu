@@ -1,11 +1,11 @@
 # Skill discovery - single source of truth for finding skills
 
-use ~/zenix_lib/md.nu
+use ../../lib/md.nu
 use plugin-config.nu *
 
 # List all skills with metadata
 export def list [] {
-    glob $"($ZENIX_DIR)/*/*/SKILL.md"
+    glob $"($ROOT_DIR)/*/*/SKILL.md"
     | each {|f|
         let dir = ($f | path dirname)
         let name = ($dir | path basename)

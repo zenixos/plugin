@@ -4,7 +4,7 @@ use plugin-config.nu *
 
 # Get installed plugins from system/ and plugin/ directories
 export def get-installed [] {
-    let system_dir = ($ZENIX_DIR | path join "system")
+    let system_dir = ($ROOT_DIR | path join "system")
     
     # Find directories with .git (actual repos)
     let system = (ls $system_dir 
