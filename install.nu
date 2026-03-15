@@ -23,14 +23,8 @@ export def main [
     let repo = $"($GITHUB_ORG)/($plugin_name)"
     let dir = $PLUGIN_DIR | path join $plugin_name
     
-    try {
-        vcs clone $repo $dir --tag $version
-        vcs init $dir --track=$PROJECT.track
-    } catch {|err|
-        print $"(style err 'Error'): ($err.msg)"
-        return
-    }
-    
+    vcs clone $repo $dir --tag $version
+    vcs init $dir --track=$PROJECT.track
     sync
     print $"(style ok 'Installed') ($plugin_name)"
 }
