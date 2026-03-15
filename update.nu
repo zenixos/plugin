@@ -3,6 +3,7 @@
 
 use lib/plugin-config.nu *
 use list.nu [get-installed]
+use sync.nu
 use ../lib/style.nu
 use ../lib/vcs.nu
 
@@ -27,17 +28,13 @@ export def main [
     }
     
     for p in $to_update {
-        print $"Updating ($p.name)..."
-        let dir = ($ROOT_DIR | path join $p.type $p.name)
         try {
-            vcs update $dir
-            print $"  (style ok 'Updated')"
+            vcs update $p.dir
+            print $"(style ok 'Updated') ($p.name)"
         } catch {
-            print $"  (style warn 'Failed to update')"
+            print $"(style warn 'Failed') ($p.name)"
         }
     }
     
-    # Run sync
-    print "Syncing..."
-    do { nu -c $"source ($ENV_FILE); plugin sync" } | complete | ignore
+    sync
 }

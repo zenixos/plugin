@@ -3,6 +3,7 @@
 
 use lib/plugin-config.nu *
 use ../lib/vcs.nu
+use ../lib/style.nu
 
 # Get installed plugins with version
 export def get-installed [] {
@@ -10,17 +11,20 @@ export def get-installed [] {
         ls ($ROOT_DIR | path join $type)
         | where type == "dir"
         | each {
-            let name = ($in.name | path basename)
-            let dir = ($ROOT_DIR | path join $type $name)
-            { name: $name, type: $type, version: (vcs version $dir) }
+            let dir = $in.name
+            { name: ($dir | path basename), type: $type, dir: $dir, version: (vcs version $dir) }
         }
     } | flatten
     | where { $in.version != "unknown" }
 }
 
-# Format output: installed first, system first, then by name
+# Format output: sort, select, style
 def format-output [] {
     sort-by name | sort-by type -r | sort-by status -r | select name status type version
+    | each {|r| match $r.status {
+        "installed" => ($r | items {|k, v| [$k (style ok $v)] } | into record)
+        _ => $r
+    }}
 }
 
 # List all plugins
@@ -29,7 +33,8 @@ export def main [] {
     
     let available = vcs list-repos $GITHUB_ORG
     | where { $in.name not-in ($installed | get name) }
-    | each { $in | insert type "plugin" | insert status "available" }
+    | each {|r| $r | insert status "available" }
+    | insert type {|r| if $r.name in $CORE_PLUGINS { "system" } else { "plugin" } }
     
     $installed 
     | append $available

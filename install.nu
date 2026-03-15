@@ -3,6 +3,7 @@
 
 use lib/plugin-config.nu *
 use list.nu [get-installed]
+use sync.nu
 use ../lib/style.nu
 use ../lib/vcs.nu
 
@@ -10,44 +11,26 @@ use ../lib/vcs.nu
 export def main [
     name: string  # Plugin name, optionally with @version (e.g. browser@v1.0.0)
 ] {
-    let parts = ($name | split row "@")
+    let parts = $name | split row "@"
     let plugin_name = $parts.0
-    let version = $parts | get -o 1
+    let version = $parts | get -o 1 | default ""
     
-    # Guard: system plugins
-    if $plugin_name in $SYSTEM_PLUGINS {
-        print $"(style err 'Error'): '($plugin_name)' is a system plugin, cannot install separately"
-        return
-    }
-    
-    # Guard: already installed
-    let installed = get-installed | get name
-    if $plugin_name in $installed {
+    if $plugin_name in (get-installed | get name) {
         print $"(style err 'Error'): '($plugin_name)' is already installed"
         return
     }
     
-    let target_dir = ($PLUGIN_DIR | path join $plugin_name)
     let repo = $"($GITHUB_ORG)/($plugin_name)"
+    let dir = $PLUGIN_DIR | path join $plugin_name
     
-    mkdir $PLUGIN_DIR
-    
-    print $"Installing ($plugin_name)..."
     try {
-        if ($version | is-not-empty) {
-            vcs clone $repo $target_dir --tag $version
-        } else {
-            vcs clone $repo $target_dir
-        }
-        vcs init $target_dir --track
+        vcs clone $repo $dir --tag $version
+        vcs init $dir --track=$PROJECT.track
     } catch {|err|
         print $"(style err 'Error'): ($err.msg)"
         return
     }
     
-    # Run sync
-    print "Syncing..."
-    do { nu -c $"source ($ENV_FILE); plugin sync" } | complete | ignore
-    
+    sync
     print $"(style ok 'Installed') ($plugin_name)"
 }
