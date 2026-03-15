@@ -35,10 +35,11 @@ export def main [
     print $"Installing ($plugin_name)..."
     try {
         if ($version | is-not-empty) {
-            vcs clone $repo $target_dir --tag $version --track
+            vcs clone $repo $target_dir --tag $version
         } else {
-            vcs clone $repo $target_dir --track
+            vcs clone $repo $target_dir
         }
+        vcs init $target_dir --track
     } catch {|err|
         print $"(style err 'Error'): ($err.msg)"
         return
