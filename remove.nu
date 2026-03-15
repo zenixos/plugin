@@ -2,7 +2,7 @@
 # description: Remove a plugin
 
 use lib/plugin-config.nu *
-use list.nu [get-installed]
+use lib/plugin-discover.nu
 use sync.nu
 use ../lib/style.nu
 
@@ -10,7 +10,7 @@ use ../lib/style.nu
 export def main [
     name: string  # Plugin name
 ] {
-    let plugin = get-installed | where name == $name | first | default null
+    let plugin = plugin-discover | where name == $name | first | default null
     
     if $plugin == null {
         print $"(style err 'Error'): '($name)' is not installed"

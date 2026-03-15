@@ -2,32 +2,13 @@
 # description: Sync skill modules and imports
 
 use lib/plugin-config.nu *
-use lib/skill-discover.nu
-
-def list-commands [skill_dir: string] {
-    glob $"($skill_dir)/*.nu"
-    | where {|f| ($f | path basename) != "mod.nu" }
-    | sort
-}
-
-# ── Data Symlinks ──
-
-def sync-data-links [skills: list] {
-    let data_root = ($ROOT_DIR | path join "data")
-    $skills | each {|s|
-        let data_dir = ($data_root | path join $s.name)
-        let link = ($s.dir | path join "data")
-        mkdir $data_dir
-        rm -f $link
-        ^ln -s $"../../data/($s.name)" $link
-    }
-    null
-}
+use lib/plugin-discover.nu
+use ../lib/symlink.nu
 
 # ── Generation ──
 
 def gen-mod [skill: record] {
-    let commands = (list-commands $skill.dir)
+    let commands = plugin-discover list-commands $skill.dir
     if ($commands | is-empty) { return }
 
     let use_lines = ($commands | each {|f| $"export use ($f | path basename)" })
@@ -88,8 +69,8 @@ def check-command [cmd_path: string, skill_name: string, scope: list] {
 }
 
 def verify-skill [skill: record, scope: list] {
-    let commands = (list-commands $skill.dir
-        | each {|cmd| check-command $cmd $skill.name $scope })
+    let commands = plugin-discover list-commands $skill.dir
+        | each {|cmd| check-command $cmd $skill.name $scope }
     let status = match ($commands | all {|c| $c.status == "ok" }) { true => "ok", _ => "warn" }
     { name: $skill.name, status: $status, commands: $commands }
 }
@@ -114,14 +95,14 @@ def render-results [reports: list] {
 
 # Sync skill modules and imports
 export def main [] {
-    let all_skills = (skill-discover list)
-    let nu_skills = ($all_skills | where has_mod)
+    let all_skills = plugin-discover
+    let nu_skills = $all_skills | where has_mod
 
-    sync-data-links $all_skills
+    $all_skills | each {|s| symlink data $s.dir }
     $nu_skills | each {|s| gen-mod $s }
     sync-use-statements $nu_skills
 
-    let scope = (load-scope)
-    let reports = ($nu_skills | each {|s| verify-skill $s $scope })
+    let scope = load-scope
+    let reports = $nu_skills | each {|s| verify-skill $s $scope }
     render-results $reports
 }

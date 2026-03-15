@@ -2,21 +2,9 @@
 # description: List installed and available plugins
 
 use lib/plugin-config.nu *
+use lib/plugin-discover.nu
 use ../lib/vcs.nu
 use ../lib/style.nu
-
-# Get installed plugins with version
-export def get-installed [] {
-    ["system", "plugin"] | each {|type|
-        ls ($ROOT_DIR | path join $type)
-        | where type == "dir"
-        | each {
-            let dir = $in.name
-            { name: ($dir | path basename), type: $type, dir: $dir, version: (vcs version $dir) }
-        }
-    } | flatten
-    | where { $in.version != "unknown" }
-}
 
 # Format output: sort, select, style
 def format-output [] {
@@ -29,7 +17,7 @@ def format-output [] {
 
 # List all plugins
 export def main [] {
-    let installed = get-installed | each { $in | insert status "installed" }
+    let installed = plugin-discover | each { $in | insert status "installed" }
     
     let available = vcs list-repos $GITHUB_ORG
     | where { $in.name not-in ($installed | get name) }

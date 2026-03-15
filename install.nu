@@ -2,7 +2,7 @@
 # description: Install a plugin
 
 use lib/plugin-config.nu *
-use list.nu [get-installed]
+use lib/plugin-discover.nu
 use sync.nu
 use ../lib/style.nu
 use ../lib/vcs.nu
@@ -15,7 +15,7 @@ export def main [
     let plugin_name = $parts.0
     let version = $parts | get -o 1 | default ""
     
-    if $plugin_name in (get-installed | get name) {
+    if $plugin_name in (plugin-discover | get name) {
         print $"(style err 'Error'): '($plugin_name)' is already installed"
         return
     }
