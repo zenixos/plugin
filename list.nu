@@ -6,29 +6,19 @@ use lib/plugin-discover.nu
 use ../lib/vcs.nu
 use ../lib/style.nu
 
-def print-installed [plugins: list] {
-    print (style header "Installed")
+def format-output [plugins: list, header: string, empty_msg: string] {
+    print (style header $header)
     if ($plugins | is-empty) {
-        print "  (none)"
+        print $"  ($empty_msg)"
     } else {
         let data = $plugins | each {|p|
             { 
                 category: (style category $p.type)
                 name: $p.name
-                description: (style dim $p.version) 
+                description: (style dim ($p.version? | default ""))
             }
         }
         style catalog $data
-    }
-}
-
-def print-available [plugins: list] {
-    print (style header "Available")
-    if ($plugins | is-empty) {
-        print "  (all installed)"
-    } else {
-        $plugins | each {|p| print $"  ($p.name)" }
-        null
     }
 }
 
@@ -41,7 +31,7 @@ export def main [] {
         | where {|r| $r.name not-in $installed_names }
         | where {|r| $r.name not-in $exclude }
     
-    print-installed $installed
+    format-output $installed "Installed" "(none)"
     print ""
-    print-available $available
+    format-output $available "Available" "(all installed)"
 }
