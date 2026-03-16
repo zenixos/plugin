@@ -10,15 +10,15 @@ use ../lib/style.nu
 export def main [
     name: string  # Skill name
 ] {
+    if $name == "skill" {
+        print $"(style err 'Error'): cannot remove 'skill' itself"
+        return
+    }
+    
     let skill = skill-discover | where name == $name | first | default null
     
     if $skill == null {
         print $"(style err 'Error'): '($name)' is not installed"
-        return
-    }
-    
-    if $skill.type == "system" {
-        print $"(style err 'Error'): cannot remove system skill '($name)'"
         return
     }
     
