@@ -14,8 +14,8 @@ export def main [
 ] {
     skill-discover
     | where { ($name | is-empty) or $in.name == $name }
-    | where { $system or $in.type == "skill" }
-    | par-each {|s|
+    | where { $system or $in.type == "plugin" }
+    | each {|s|
         vcs update $s.dir --track=$PROJECT.track
         print $"(style ok 'Updated') ($s.name)"
     }
