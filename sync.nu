@@ -5,6 +5,8 @@ use lib/plugin-config.nu *
 use lib/plugin-discover.nu
 use ../lib/symlink.nu
 
+const VERIFY_SCRIPT = (path self | path dirname | path join "verify.nu")
+
 # ── Generation ──
 
 def gen-mod [skill: record] {
@@ -33,5 +35,5 @@ export def main [] {
     $skills | each {|s| gen-mod $s }
     $skills | each {|s| $"use ($s.name)" } | str join "\n\n" | save -f $LOAD_FILE
 
-    exec nu --env-config $ENV_FILE (path self | path dirname | path join "verify.nu")
+    exec nu --env-config $ENV_FILE $VERIFY_SCRIPT
 }

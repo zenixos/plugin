@@ -9,3 +9,4 @@ export use list.nu
 export use remove.nu
 export use sync.nu
 export use update.nu
+export use verify.nu

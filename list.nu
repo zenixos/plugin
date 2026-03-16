@@ -6,25 +6,36 @@ use lib/plugin-discover.nu
 use ../lib/vcs.nu
 use ../lib/style.nu
 
-# Format output: sort, select, style
-def format-output [] {
-    sort-by name | sort-by type -r | sort-by status -r | select name status type version
-    | each {|r| match $r.status {
-        "installed" => ($r | items {|k, v| [$k (style ok $v)] } | into record)
-        _ => $r
-    }}
-}
-
 # List all plugins
 export def main [] {
-    let installed = plugin-discover | each { $in | insert status "installed" }
+    let installed = plugin-discover
     
+    print (style header "Installed")
+    if ($installed | is-empty) {
+        print "  (none)"
+    } else {
+        let data = $installed | each {|p|
+            { 
+                category: (style category $p.type)
+                name: $p.name
+                description: (style dim $p.version) 
+            }
+        }
+        style catalog $data
+    }
+    
+    print ""
+    print (style header "Available")
+    let installed_names = ($installed | get name)
+    let exclude = ["zenix" "xenix" "system"]
     let available = vcs list-repos $GITHUB_ORG
-    | where { $in.name not-in ($installed | get name) }
-    | each {|r| $r | insert status "available" }
-    | insert type {|r| if $r.name in $CORE_PLUGINS { "system" } else { "plugin" } }
+        | where {|r| $r.name not-in $installed_names }
+        | where {|r| $r.name not-in $exclude }
     
-    $installed 
-    | append $available
-    | format-output
+    if ($available | is-empty) {
+        print "  (all installed)"
+    } else {
+        $available | each {|r| print $"  ($r.name)" }
+        null
+    }
 }
