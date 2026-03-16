@@ -26,71 +26,14 @@ def gen-mod [skill: record] {
     | save -f ($skill.dir | path join "mod.nu")
 }
 
-# ── Use Statements ──
+# ── Load File ──
 
-def sync-use-statements [skills: list] {
-    let content = (open $ENV_FILE --raw)
-    
-    # Find "use plugin" line and keep everything before and including it
-    let lines = ($content | lines)
-    let plugin_idx = ($lines | enumerate | where item == "use plugin" | get -o 0.index)
-    if $plugin_idx == null { return }
-    
-    let before_lines = ($lines | take ($plugin_idx + 1))
-    
-    # Generate use statements for nu skills (excluding plugin itself)
+def sync-load-file [skills: list] {
     let use_lines = ($skills 
-        | where has_mod and name != "plugin"
+        | where has_mod
         | each {|s| $"use ($s.name)" })
     
-    ($before_lines | append $use_lines | append "" | str join "\n") | save -f $ENV_FILE
-}
-
-# ── Verification (pure) ──
-
-def load-scope [] {
-    try {
-        nu --env-config $ENV_FILE -c "scope commands | where type == 'custom' | select name description | to json" | from json
-    } catch { [] }
-}
-
-def check-command [cmd_path: string, skill_name: string, scope: list] {
-    let name = ($cmd_path | path basename | str replace ".nu" "")
-    let found = ($scope | where name == $"($skill_name) ($name)")
-    let exported = ($found | is-not-empty)
-    let documented = $exported and (($found | first | get description) | is-not-empty)
-
-    let result = match [$exported $documented] {
-        [_ true] => { status: "ok", msg: "" }
-        [true false] => { status: "warn", msg: "missing doc comment" }
-        _ => { status: "error", msg: "not exported" }
-    }
-    { name: $name, status: $result.status, msg: $result.msg }
-}
-
-def verify-skill [skill: record, scope: list] {
-    let commands = plugin-discover list-commands $skill.dir
-        | each {|cmd| check-command $cmd $skill.name $scope }
-    let status = match ($commands | all {|c| $c.status == "ok" }) { true => "ok", _ => "warn" }
-    { name: $skill.name, status: $status, commands: $commands }
-}
-
-# ── Rendering ──
-
-def render-results [reports: list] {
-    use ../lib/style.nu
-
-    let data = ($reports | each {|r|
-        $r.commands | each {|c|
-            let desc = match $c.status {
-                "ok" => (style ok "ok")
-                "error" => (style err "not exported")
-                _ => (style warn ($c | get -o msg | default "warning"))
-            }
-            { category: $r.name, name: $c.name, description: $desc }
-        }
-    } | flatten)
-    style catalog $data
+    ($use_lines | str join "\n\n") | save -f $LOAD_FILE
 }
 
 # Sync skill modules and imports
@@ -100,9 +43,7 @@ export def main [] {
 
     $all_skills | each {|s| symlink data $s.dir }
     $nu_skills | each {|s| gen-mod $s }
-    sync-use-statements $nu_skills
+    sync-load-file $nu_skills
 
-    let scope = load-scope
-    let reports = $nu_skills | each {|s| verify-skill $s $scope }
-    render-results $reports
+    exec nu --env-config $ENV_FILE (path self | path dirname | path join "verify.nu")
 }
