@@ -1,23 +1,23 @@
 #!/usr/bin/env nu
-# description: Update plugins
+# description: Update skills
 
-use lib/plugin-config.nu *
-use lib/plugin-discover.nu
+use lib/skill-config.nu *
+use lib/skill-discover.nu
 use sync.nu
 use ../lib/style.nu
 use ../lib/vcs.nu
 
-# Update plugins
+# Update skills
 export def main [
-    name?: string  # Plugin name (optional, updates all plugins if omitted)
-    --system       # Also update system plugins
+    name?: string  # Skill name (optional, updates all skills if omitted)
+    --system       # Also update system skills
 ] {
-    plugin-discover
+    skill-discover
     | where { ($name | is-empty) or $in.name == $name }
-    | where { $system or $in.type == "plugin" }
-    | par-each {|p|
-        vcs update $p.dir --track=$PROJECT.track
-        print $"(style ok 'Updated') ($p.name)"
+    | where { $system or $in.type == "skill" }
+    | par-each {|s|
+        vcs update $s.dir --track=$PROJECT.track
+        print $"(style ok 'Updated') ($s.name)"
     }
     
     sync

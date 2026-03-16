@@ -1,24 +1,24 @@
 #!/usr/bin/env nu
-# description: Remove a plugin
+# description: Remove a skill
 
-use lib/plugin-config.nu *
-use lib/plugin-discover.nu
+use lib/skill-config.nu *
+use lib/skill-discover.nu
 use sync.nu
 use ../lib/style.nu
 
-# Remove a plugin
+# Remove a skill
 export def main [
-    name: string  # Plugin name
+    name: string  # Skill name
 ] {
-    let plugin = plugin-discover | where name == $name | first | default null
+    let skill = skill-discover | where name == $name | first | default null
     
-    if $plugin == null {
+    if $skill == null {
         print $"(style err 'Error'): '($name)' is not installed"
         return
     }
     
     cd $ROOT_DIR
-    rm -rf $plugin.dir
+    rm -rf $skill.dir
     sync
     print $"(style ok 'Removed') ($name)"
 }

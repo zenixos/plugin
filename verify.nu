@@ -1,7 +1,7 @@
 #!/usr/bin/env nu
 # description: Verify skill commands are exported and documented
 
-use lib/plugin-discover.nu
+use lib/skill-discover.nu
 use ../lib/style.nu
 
 def check-command [cmd_path: string, skill_name: string, scope: list] {
@@ -33,7 +33,7 @@ def verify-skill [skill: record, scope: list] {
 # Verify skill commands are exported and documented
 export def main [] {
     let scope = scope commands | where type == 'custom' | select name description
-    let skills = plugin-discover | where has_mod
+    let skills = skill-discover | where has_mod
     let data = $skills | each {|s| verify-skill $s $scope } | flatten
     style catalog $data
 }

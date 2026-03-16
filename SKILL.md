@@ -1,11 +1,11 @@
 ---
-name: plugin
-description: Plugin manager for zenix skills
+name: skill
+description: Skill manager for zenix
 ---
 
-# plugin
+# skill
 
-Plugin manager for zenix skills.
+Skill manager for zenix.
 
 ## Usage
 

@@ -1,6 +1,6 @@
-# Plugin discovery - single source of truth for finding installed plugins
+# Skill discovery - single source of truth for finding installed skills
 
-use plugin-config.nu *
+use skill-config.nu *
 use ../../lib/vcs.nu
 use ../../lib/md.nu
 
@@ -12,14 +12,14 @@ def get-description [dir: string] {
     } else { "" }
 }
 
-# List command files in a plugin (excludes mod.nu)
+# List command files in a skill (excludes mod.nu)
 def list-commands [dir: string] {
     glob $"($dir)/*.nu"
     | where {|f| ($f | path basename) != "mod.nu" }
     | sort
 }
 
-# List all installed plugins with metadata
+# List all installed skills with metadata
 export def main [] {
     ["system", "plugin"] | each {|type|
         ls ($ROOT_DIR | path join $type)
