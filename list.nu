@@ -31,6 +31,7 @@ export def main [] {
     let available = vcs list-repos $GITHUB_ORG
         | where {|r| $r.name not-in $installed_names }
         | where {|r| $r.name not-in $exclude }
+        | each {|r| $r | insert type (if $r.name in $CORE_PLUGINS { "system" } else { "plugin" }) }
     
     format-output $installed "Installed" "(none)"
     print ""
