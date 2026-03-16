@@ -21,7 +21,9 @@ export def main [
     }
     
     let repo = $"($GITHUB_ORG)/($skill_name)"
-    let dir = $PLUGIN_DIR | path join $skill_name
+    let is_core = $skill_name in $CORE_SKILLS
+    let target_dir = if $is_core { $ROOT_DIR | path join "system" } else { $PLUGIN_DIR }
+    let dir = $target_dir | path join $skill_name
     
     vcs clone $repo $dir --tag $version
     vcs init $dir --track=$PROJECT.track
