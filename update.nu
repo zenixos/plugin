@@ -15,7 +15,10 @@ export def main [
     plugin-discover
     | where { ($name | is-empty) or $in.name == $name }
     | where { $system or $in.type == "plugin" }
-    | par-each {|p| vcs update $p.dir --track=$PROJECT.track; print $"(style ok 'Updated') ($p.name)" }
+    | par-each {|p|
+        vcs update $p.dir --track=$PROJECT.track
+        print $"(style ok 'Updated') ($p.name)"
+    }
     
     sync
 }
