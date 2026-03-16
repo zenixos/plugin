@@ -8,14 +8,14 @@ def check-command [cmd_path: string, skill_name: string, scope: list] {
     let name = ($cmd_path | path basename | str replace ".nu" "")
     let found = ($scope | where name == $"($skill_name) ($name)")
     let exported = ($found | is-not-empty)
-    let documented = $exported and (($found | first | get description) | is-not-empty)
+    let documented = if $exported { ($found | first | get description) | is-not-empty } else { false }
 
-    match [$documented $exported] {
+    let result = match [$documented $exported] {
         [true _] => { status: "ok", msg: "" }
         [false true] => { status: "warn", msg: "missing doc comment" }
         [false false] => { status: "error", msg: "not exported" }
     }
-    | { name: $name, status: $in.status, msg: $in.msg }
+    { name: $name, status: $result.status, msg: $result.msg }
 }
 
 def verify-skill [skill: record, scope: list] {
