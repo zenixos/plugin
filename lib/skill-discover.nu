@@ -22,7 +22,9 @@ def list-commands [dir: string] {
 # List all installed skills with metadata
 export def main [] {
     ["system", "plugin"] | each {|type|
-        ls ($ROOT_DIR | path join $type)
+        let dir = $ROOT_DIR | path join $type
+        if not ($dir | path exists) { return [] }
+        ls $dir
         | where type == "dir"
         | each {
             let dir = $in.name
