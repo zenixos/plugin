@@ -19,10 +19,9 @@ def check-command [cmd_path: string, skill_name: string, scope: list] {
 }
 
 def verify-skill [skill: record, scope: list] {
-    let commands = plugin-discover list-commands $skill.dir
-        | each {|cmd| check-command $cmd $skill.name $scope }
-    let status = match ($commands | all {|c| $c.status == "ok" }) { true => "ok", _ => "warn" }
-    { name: $skill.name, status: $status, commands: $commands }
+    let results = $skill.commands | each {|cmd| check-command $cmd $skill.name $scope }
+    let status = match ($results | all {|c| $c.status == "ok" }) { true => "ok", _ => "warn" }
+    { name: $skill.name, status: $status, commands: $results }
 }
 
 def render-results [reports: list] {

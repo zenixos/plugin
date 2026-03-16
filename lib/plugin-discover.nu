@@ -12,6 +12,13 @@ def get-description [dir: string] {
     } else { "" }
 }
 
+# List command files in a plugin (excludes mod.nu)
+def list-commands [dir: string] {
+    glob $"($dir)/*.nu"
+    | where {|f| ($f | path basename) != "mod.nu" }
+    | sort
+}
+
 # List all installed plugins with metadata
 export def main [] {
     ["system", "plugin"] | each {|type|
@@ -27,15 +34,11 @@ export def main [] {
                 version: (vcs version $dir)
                 has_mod: ($dir | path join "mod.nu" | path exists)
                 description: (get-description $dir)
+                commands: (list-commands $dir)
             }
         }
     } | flatten
     | where { $in.version != "unknown" }
 }
 
-# List commands in a plugin (excludes mod.nu)
-export def list-commands [dir: string] {
-    glob $"($dir)/*.nu"
-    | where {|f| ($f | path basename) != "mod.nu" }
-    | sort
-}
+
