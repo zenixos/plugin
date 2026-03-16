@@ -40,7 +40,7 @@ export def main [] {
             }
         }
     } | flatten
-    | where { $in.version != "unknown" }
+    | where { $in.has_mod }
 }
 
 
