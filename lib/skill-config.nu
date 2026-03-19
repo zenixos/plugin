@@ -2,7 +2,7 @@ use ../../lib/config.nu *
 
 # Re-export system-level config
 export const GITHUB_ORG = $GITHUB_ORG
-export const CORE_SKILLS = $CORE_PLUGINS
+export const CORE_SKILLS = ["work", "agent", "watcher", "skill", "browser", "memory"]
 export const ROOT_DIR = $ROOT
 export const PLUGIN_DIR = $PLUGIN_DIR
 export const ENV_FILE = $ENV_FILE
